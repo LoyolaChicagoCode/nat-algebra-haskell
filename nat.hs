@@ -154,7 +154,7 @@ testsNatFold =
 -- fusion theorem: if f is strict, f a = b, and f . g = h . f, then
 -- f . fold g a = fold h b
 
-testsNatFusion fold a f g h  = 
+testsNatFusion fold f g a h = 
   let b = f a
       l = f . fold g a
       r = fold h b
@@ -169,11 +169,11 @@ testsNatFusion fold a f g h  =
    ]
 
 -- (0+) (fold Succ 0) = fold Succ 0
-testsNatFusionLeftUnitAdd = testsNatFusion fold zero (addR zero) Succ Succ
+testsNatFusionLeftUnitAdd = testsNatFusion fold (addR zero) Succ zero Succ
 -- (1*) (fold Succ 1) = fold Succ 1
-testsNatFusionLeftUnitMult = testsNatFusion fold one (multR one) Succ Succ
+testsNatFusionLeftUnitMult = testsNatFusion fold (multR one) Succ one Succ
 -- (2*) (fold Succ 0) = fold (2+) 0
-testsNatFusionAddMultTwo = testsNatFusion fold zero (multR two) Succ (Succ . Succ)
+testsNatFusionAddMultTwo = testsNatFusion fold (multR two) Succ zero (Succ . Succ)
 
 -- functions from above as catamorphisms (no explicit recursion)
 

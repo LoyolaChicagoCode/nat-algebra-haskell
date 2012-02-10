@@ -18,3 +18,19 @@ Meijer's banana paper, is intended to convey several key ideas:
   instances of certain type classes.
 
 - HUnit, including ways to reuse test cases through parameterization.
+
+To load the example and run the tests:
+
+	$ ghci
+	GHCi, version 7.0.3: http://www.haskell.org/ghc/  :? for help
+	...
+	Prelude> :load nat.hs
+	[1 of 1] Compiling Main             ( nat.hs, interpreted )
+	Ok, modules loaded: Main.
+	*Main> runTestTT testsNatAll
+	Loading package HUnit-1.2.4.2 ... linking ... done.
+	Cases: 77  Tried: 77  Errors: 0  Failures: 0
+	Counts {cases = 77, tried = 77, errors = 0, failures = 0}
+
+You can also run individual tests or play around with the various
+functions.
