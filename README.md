@@ -11,6 +11,9 @@ Meijer's banana paper, is intended to convey several key ideas:
   recursion as higher-order functions. The algebra for Nat is
   fashioned closely after the algebra of the linear List type.
 
+- Transformation laws that help you refactor programs in provably
+  meaning-preserving ways.
+
 - Type classes: how to make your own types more usable by making them
   instances of certain type classes.
 

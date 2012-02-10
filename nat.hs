@@ -13,12 +13,20 @@ import Test.HUnit
 import Data.List(unfoldr)
 
 data Nat = Zero | Succ Nat
+         deriving (Eq, Ord, Show)
 
+showNat Zero            = "Zero"
+showNat (Succ Zero)     = "Succ Zero"
+showNat (Succ (Succ n)) = "Succ (" ++ (showNat (Succ n)) ++ ")"
+
+{-
 -- make it printable with parentheses where needed
+-- deriving Show automatically picks up showNat
 
 instance Show Nat where
   showsPrec _ Zero     = showString "Zero"
   showsPrec d (Succ n) = showParen (d > 0) $ showString "Succ " . showsPrec (d + 1) n 
+-}
 
 testsNatShow = 
   TestList 
@@ -35,13 +43,20 @@ zero = Zero
 one :: Nat
 one = Succ Zero
 
+infinity :: Nat
+infinity = Succ infinity
+
 -- make it comparable
+
+{-
+-- deriving Eq does this automatically
 
 instance Eq Nat where
   Zero   == Zero   = True
   Zero   == Succ _ = False
   Succ _ == Zero   = False
   Succ n == Succ m = n == m
+-}
 
 testsNatEq = 
   TestList 
@@ -50,13 +65,19 @@ testsNatEq =
   , TestLabel "NatEq10" (TestCase (one  /= zero @? "failed"))
   , TestLabel "NatEq11" (TestCase (one  == one  @? "failed"))
   , TestLabel "NatEq33" (TestCase (Succ (Succ (Succ Zero)) == Succ (Succ (Succ Zero)) @? "failed"))
+  , TestLabel "NatNe08" (TestCase (zero /= infinity @? "failed"))
+  , TestLabel "NatNe80" (TestCase (infinity /= zero @? "failed"))
   ]
+
+{-
+-- deriving Ord does this automatically
 
 instance Ord Nat where
   Zero   <= Zero   = True
   Zero   <= Succ _ = True
   Succ _ <= Zero   = False
   Succ n <= Succ m = n <= m
+-}
 
 testsNatOrd = 
   TestList 
@@ -67,6 +88,8 @@ testsNatOrd =
   , TestLabel "NatOrd33" (TestCase (Succ (Succ (Succ Zero)) <= Succ (Succ (Succ Zero)) @? "failed"))
   , TestLabel "NatOrd32" (TestCase (Succ (Succ (Succ Zero))  > Succ (Succ Zero)        @? "failed"))
   , TestLabel "NatOrd23" (TestCase (Succ (Succ Zero)         < Succ (Succ (Succ Zero)) @? "failed"))
+  , TestLabel "NatOrd18" (TestCase (one  < infinity @? "failed"))
+  , TestLabel "NatOrd81" (TestCase (infinity >= one @? "failed"))
   ]
 
 -- some recursive functions
@@ -127,6 +150,30 @@ testsNatFold =
   [ TestLabel "foldAdd0" (TestCase (0 @=? fold (+1) 0 zero))
   , TestLabel "foldAdd5" (TestCase (5 @=? fold (+1) 0 five))
   ]
+
+-- fusion theorem: if f is strict, f a = b, and f . g = h . f, then
+-- f . fold g a = fold h b
+
+testsNatFusion fold a f g h  = 
+  let b = f a
+      l = f . fold g a
+      r = fold h b
+  in
+   TestList
+   [ TestLabel "foldFusionAssumption0" (TestCase (f (g zero)  @=? h (f zero)))
+   , TestLabel "foldFusionAssumption1" (TestCase (f (g one )  @=? h (f one )))
+   , TestLabel "foldFusionAssumption5" (TestCase (f (g five)  @=? h (f five)))
+   , TestLabel "foldFusion0" (TestCase (f (fold g a zero) @=? fold h b zero))
+   , TestLabel "foldFusion1" (TestCase (f (fold g a one ) @=? fold h b one))
+   , TestLabel "foldFusion5" (TestCase (f (fold g a five) @=? fold h b five))
+   ]
+
+-- (0+) (fold Succ 0) = fold Succ 0
+testsNatFusionLeftUnitAdd = testsNatFusion fold zero (addR zero) Succ Succ
+-- (1*) (fold Succ 1) = fold Succ 1
+testsNatFusionLeftUnitMult = testsNatFusion fold one (multR one) Succ Succ
+-- (2*) (fold Succ 0) = fold (2+) 0
+testsNatFusionAddMultTwo = testsNatFusion fold zero (multR two) Succ (Succ . Succ)
 
 -- functions from above as catamorphisms (no explicit recursion)
 
@@ -210,6 +257,9 @@ testsNatAll =
   , testsNatOrd
   , testsNatBasicR
   , testsNatFold
+  , testsNatFusionLeftUnitAdd
+  , testsNatFusionLeftUnitMult
+  , testsNatFusionAddMultTwo
   , testsNatFactCata
   , testsNatUnfold
   , testsNatBasicCataAna
