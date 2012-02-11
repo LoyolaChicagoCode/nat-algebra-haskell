@@ -102,11 +102,11 @@ multR          :: Nat -> Nat -> Nat
 multR Zero     n = Zero
 multR (Succ m) n = addR n (multR m n)
 
-toIntR          :: Nat -> Integer
+toIntR          :: Nat -> Int
 toIntR Zero     = 0
 toIntR (Succ n) = 1 + (toIntR n)
 
-fromIntR           :: Integer -> Nat
+fromIntR           :: Int -> Nat
 fromIntR 0         = Zero
 fromIntR n | n > 0 = Succ (fromIntR (n - 1))
 
@@ -183,7 +183,7 @@ add = fold Succ
 mult   :: Nat -> Nat -> Nat
 mult m = fold (add m) Zero
 
-toInt :: Nat -> Integer
+toInt :: Nat -> Int
 toInt = fold (+1) 0
 
 toList            :: a -> Nat -> [a]
@@ -217,7 +217,7 @@ testsNatUnfold =
 
 -- function from above as anamorphism (no explicit recursion)
 
-fromInt :: Integer -> Nat
+fromInt :: Int -> Nat
 fromInt = unfold (\n -> if n > 0 then Just (n - 1) else Nothing)
 
 testsNatBasicCataAna = testsNatBasic toInt fromInt add mult
