@@ -15,10 +15,6 @@ import Data.List(unfoldr)
 data Nat = Zero | Succ Nat
          deriving (Eq, Ord, Show)
 
-showNat Zero            = "Zero"
-showNat (Succ Zero)     = "Succ Zero"
-showNat (Succ (Succ n)) = "Succ (" ++ (showNat (Succ n)) ++ ")"
-
 {-
 -- make it printable with parentheses where needed
 -- deriving Show automatically picks up showNat
